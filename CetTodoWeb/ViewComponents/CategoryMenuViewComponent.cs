@@ -17,9 +17,9 @@ namespace CetTodoWeb.ViewComponents
             this.dbContext = dbContext;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(bool ShowEmpty=true)
+        public async Task<IViewComponentResult> InvokeAsync()
         {
-            var items =await dbContext.Categories.Where(c=> ShowEmpty || c.TodoItems.Any() ).ToListAsync();
+            var items =await dbContext.Categories.ToListAsync();
             return View(items);
         }
     }

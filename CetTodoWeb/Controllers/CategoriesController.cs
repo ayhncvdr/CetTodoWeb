@@ -7,22 +7,31 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using CetTodoWeb.Data;
 using CetTodoWeb.Models;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 
 namespace CetTodoWeb.Controllers
+
 {
+    [Authorize]
     public class CategoriesController : Controller
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<CetUser> _userManager;
 
-        public CategoriesController(ApplicationDbContext context)
+        public CategoriesController(ApplicationDbContext context, UserManager<CetUser> userManager)
         {
             _context = context;
+            _userManager = userManager;
         }
 
         // GET: Categories
         public async Task<IActionResult> Index()
         {
-            var items = await _context.Categories.ToListAsync();
+            var cetUser = await _userManager.GetUserAsync(HttpContext.User);
+            var query = _context.Categories.Where(c => c.CetUserId == cetUser.Id);
+
+            var items = await query.ToListAsync();
             return View(items);
         }
 
@@ -45,6 +54,7 @@ namespace CetTodoWeb.Controllers
         }
 
         // GET: Categories/Create
+        [Authorize]
         public IActionResult Create()
         {
             return View();
@@ -53,10 +63,14 @@ namespace CetTodoWeb.Controllers
         // POST: Categories/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [Authorize]
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create([Bind("Id,Name")] Category category)
         {
+            var cetUser = await _userManager.GetUserAsync(HttpContext.User);
+            category.CetUserId = cetUser.Id;
+
             if (ModelState.IsValid)
             {
                 _context.Add(category);
