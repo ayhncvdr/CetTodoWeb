@@ -30,7 +30,7 @@
                         
                         @if (User.Identity.IsAuthenticated)
                         {
-                             @await Component.InvokeAsync("CategoryMenu")
+                             @await Component.InvokeAsync("CategoryMenu", new {ShowEmpty=true })
 
                         }
 
