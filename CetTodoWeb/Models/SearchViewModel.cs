@@ -9,6 +9,7 @@ namespace CetTodoWeb.Models
     {
         public string SearchText { get; set; }
         public bool ShowAll { get; set; }
+        public int categoryId { get; set; }
 
         public List<TodoItem> Result { get; set; }
 

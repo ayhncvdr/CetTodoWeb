@@ -48,7 +48,34 @@ namespace CetTodoWeb.Controllers
 
             return View(searchModel);
         }
+        public async Task<IActionResult> Index2(SearchViewModel searchModel)
+        {
 
+            /* var applicationDbContext2 = _context.TodoItems.Include(t => t.Category)
+                 .Where(t => showall || !t.IsCompleted ).OrderBy(t => t.DueDate);
+            */
+            var cetUser = await _userManager.GetUserAsync(HttpContext.User);
+            var query = _context.TodoItems.Include(t => t.Category).Where(t => t.CetUserId == cetUser.Id); // select * from TodoItems t inner join Categories c on t.CategoryId=c.Id
+
+            if (!searchModel.ShowAll)
+            {
+                query = query.Where(t => !t.IsCompleted); // where t.Iscompleted=0
+            }
+
+            if (!searchModel.categoryId.Equals(_context.TodoItems.Include(t => t.CategoryId)))
+            {
+                query = query.Where(t => t.CategoryId == searchModel.categoryId);
+            }
+            if (!String.IsNullOrWhiteSpace(searchModel.SearchText))
+            {
+                query = query.Where(t => t.Title.Contains(searchModel.SearchText)); // where t.Title like '%serchtext%'
+            }
+
+            query = query.OrderBy(t => t.DueDate); // order by DueDate
+            searchModel.Result = await query.ToListAsync();
+
+            return View(searchModel);
+        }
         // GET: Todo/Details/5
         public async Task<IActionResult> Details(int? id)
         {
